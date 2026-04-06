@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Code HTML</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.82);
+      --panel-border: rgba(148, 163, 184, 0.18);
+      --panel-strong: #111827;
+      --text: #e5eefb;
+      --muted: #93a4bf;
+      --accent: #fb7185;
+      --accent-2: #38bdf8;
+      --success: #22c55e;
+      --shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --font-ui: "Space Grotesk", "Segoe UI", sans-serif;
+      --font-code: "Fira Code", "Cascadia Code", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 36%),
+        radial-gradient(circle at top right, rgba(251, 113, 133, 0.16), transparent 32%),
+        linear-gradient(145deg, #020617, #0f172a 42%, #111827);
+      overflow: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      pointer-events: none;
+      filter: blur(12px);
+      opacity: 0.5;
+    }
+
+    body::before {
+      top: 8%;
+      right: -6%;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    body::after {
+      bottom: 10%;
+      left: -4%;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(251, 113, 133, 0.1);
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+      padding: 22px;
+      gap: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-xl);
+      background: rgba(15, 23, 42, 0.75);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background:
+        linear-gradient(160deg, rgba(251, 113, 133, 0.95), rgba(249, 115, 22, 0.9));
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      box-shadow: 0 12px 28px rgba(251, 113, 133, 0.3);
+    }
+
+    .brand-copy h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand-copy p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--panel-border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .toggle input {
+      accent-color: var(--accent-2);
+      inline-size: 18px;
+      block-size: 18px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 600;
+      color: #04121f;
+      background: linear-gradient(135deg, #67e8f9, #38bdf8);
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+      box-shadow: 0 14px 28px rgba(56, 189, 248, 0.28);
+    }
+
+    .button.secondary {
+      color: var(--text);
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid var(--panel-border);
+      box-shadow: none;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.2fr) minmax(320px, 1fr);
+      gap: 18px;
+      min-height: 0;
+    }
+
+    .editor-stack,
+    .preview-card {
+      min-height: 0;
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-xl);
+      background: rgba(15, 23, 42, 0.74);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .editor-stack {
+      display: grid;
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      animation: slideUp 500ms ease both;
+    }
+
+    .panel:last-child {
+      border-bottom: 0;
+    }
+
+    .panel:nth-child(2) {
+      animation-delay: 80ms;
+    }
+
+    .panel:nth-child(3) {
+      animation-delay: 160ms;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.92), rgba(15, 23, 42, 0.74));
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.04);
+    }
+
+    .dot.html {
+      background: #f97316;
+    }
+
+    .dot.css {
+      background: #38bdf8;
+    }
+
+    .dot.js {
+      background: #facc15;
+    }
+
+    .panel-title strong {
+      font-size: 0.98rem;
+      letter-spacing: 0.03em;
+    }
+
+    .panel-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .panel textarea {
+      width: 100%;
+      height: 100%;
+      resize: none;
+      border: 0;
+      outline: none;
+      padding: 18px;
+      background: rgba(2, 6, 23, 0.52);
+      color: #dbeafe;
+      font: 500 0.94rem/1.6 var(--font-code);
+      tab-size: 2;
+      caret-color: var(--accent);
+    }
+
+    .panel textarea::placeholder {
+      color: rgba(147, 164, 191, 0.55);
+    }
+
+    .preview-card {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      animation: slideUp 520ms ease 220ms both;
+    }
+
+    .preview-header,
+    .preview-meta {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.92), rgba(15, 23, 42, 0.74));
+    }
+
+    .preview-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .preview-header p,
+    .preview-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(34, 197, 94, 0.24);
+      color: #bbf7d0;
+      font-size: 0.84rem;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.14);
+    }
+
+    .preview-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: rgba(2, 6, 23, 0.36);
+    }
+
+    .preview-shell {
+      min-height: 0;
+      padding: 16px;
+      background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.92));
+    }
+
+    .preview-frame-wrap {
+      height: 100%;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      background: white;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #bae6fd;
+      font-size: 0.84rem;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1120px) {
+      body {
+        overflow: auto;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .editor-stack {
+        min-height: 72vh;
+      }
+
+      .preview-card {
+        min-height: 70vh;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        padding: 14px;
+      }
+
+      .topbar {
+        padding: 16px;
+      }
+
+      .controls {
+        width: 100%;
+      }
+
+      .controls > * {
+        flex: 1 1 auto;
+        justify-content: center;
+      }
+
+      .brand {
+        align-items: flex-start;
+      }
+
+      .editor-stack {
+        min-height: 78vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge">CP</div>
+        <div class="brand-copy">
+          <h1>Review Code HTML</h1>
+          <p>Nhập HTML, CSS, JavaScript và xem kết quả ngay bên cạnh.</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label class="toggle">
+          <input id="autoRun" type="checkbox" checked>
+          <span>Tự động chạy preview</span>
+        </label>
+        <button class="button secondary" id="clearBtn" type="button">Xóa nội dung</button>
+        <button class="button" id="runBtn" type="button">Run</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="editor-stack">
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="dot html"></span>
+              <div>
+                <strong>HTML</strong>
+                <span>Cấu trúc nội dung giao diện</span>
+              </div>
+            </div>
+            <span class="badge">&lt;body&gt;</span>
+          </div>
+          <textarea id="htmlCode" spellcheck="false" placeholder="Viết HTML ở đây..."></textarea>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="dot css"></span>
+              <div>
+                <strong>CSS</strong>
+                <span>Màu sắc, layout, animation</span>
+              </div>
+            </div>
+            <span class="badge">styles</span>
+          </div>
+          <textarea id="cssCode" spellcheck="false" placeholder="Viết CSS ở đây..."></textarea>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="dot js"></span>
+              <div>
+                <strong>JavaScript</strong>
+                <span>Tương tác và logic</span>
+              </div>
+            </div>
+            <span class="badge">script</span>
+          </div>
+          <textarea id="jsCode" spellcheck="false" placeholder="Viết JavaScript ở đây..."></textarea>
+        </article>
+      </section>
+
+      <section class="preview-card">
+        <div class="preview-header">
+          <div>
+            <h2>Live Preview</h2>
+            <p>Render code vào iframe tách biệt, gần giống trải nghiệm CodePen.</p>
+          </div>
+          <div class="status" id="previewStatus">Preview đã cập nhật</div>
+        </div>
+
+        <div class="preview-meta">
+          <span class="muted">Mẹo: dùng <code>Ctrl + Enter</code> để chạy nhanh.</span>
+          <span class="muted" id="lastUpdated">Chưa có thay đổi</span>
+        </div>
+
+        <div class="preview-shell">
+          <div class="preview-frame-wrap">
+            <iframe
+              id="previewFrame"
+              title="Preview"
+              sandbox="allow-scripts allow-forms allow-modals"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const htmlCode = document.getElementById("htmlCode");
+    const cssCode = document.getElementById("cssCode");
+    const jsCode = document.getElementById("jsCode");
+    const previewFrame = document.getElementById("previewFrame");
+    const runBtn = document.getElementById("runBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const autoRun = document.getElementById("autoRun");
+    const previewStatus = document.getElementById("previewStatus");
+    const lastUpdated = document.getElementById("lastUpdated");
+
+    const storageKey = "mini-codepen-state";
+
+    const starter = {
+      html: `<div class="card">\n  <h1>Xin chao!</h1>\n  <p>Ban dang dung mot mini editor kieu CodePen.</p>\n  <button id="helloBtn">Bam thu xem</button>\n</div>`,
+      css: `body {\n  margin: 0;\n  min-height: 100vh;\n  display: grid;\n  place-items: center;\n  font-family: Arial, sans-serif;\n  background: linear-gradient(135deg, #f8fafc, #dbeafe);\n}\n\n.card {\n  width: min(420px, calc(100% - 32px));\n  padding: 32px;\n  border-radius: 24px;\n  background: white;\n  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);\n}\n\nh1 {\n  margin-top: 0;\n}\n\nbutton {\n  margin-top: 12px;\n  border: 0;\n  padding: 12px 16px;\n  border-radius: 999px;\n  background: #0f172a;\n  color: white;\n  cursor: pointer;\n}`,
+      js: `const button = document.getElementById("helloBtn");\n\nbutton?.addEventListener("click", () => {\n  button.textContent = "Da bam xong";\n});`
+    };
+
+    let renderTimer;
+    let previewUrl = "";
+
+    function readSavedState() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function writeSavedState() {
+      const state = {
+        html: htmlCode.value,
+        css: cssCode.value,
+        js: jsCode.value
+      };
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      } catch {
+        // Ignore storage failures so the editor still works in restricted browsers.
+      }
+    }
+
+    function hydrateEditors() {
+      const savedState = readSavedState();
+      const source = savedState && typeof savedState === "object" ? savedState : starter;
+
+      htmlCode.value = source.html || "";
+      cssCode.value = source.css || "";
+      jsCode.value = source.js || "";
+    }
+
+    function escapeClosingTag(code, tagName) {
+      const pattern = new RegExp(`</${tagName}`, "gi");
+      return code.replace(pattern, `<\\/${tagName}`);
+    }
+
+    function buildPreviewDocument() {
+      const safeCss = escapeClosingTag(cssCode.value, "style");
+      const safeJs = escapeClosingTag(jsCode.value, "script");
+      const previewScript = [
+        "<script>",
+        "try {",
+        safeJs,
+        "} catch (error) {",
+        '  const pre = document.createElement("pre");',
+        "  pre.textContent = error.stack || error.message;",
+        '  pre.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;margin:0;padding:12px 14px;border-radius:12px;background:#1f2937;color:#fca5a5;font:12px/1.5 monospace;white-space:pre-wrap;z-index:9999;";',
+        "  document.body.appendChild(pre);",
+        "}",
+        "<\/script>"
+      ].join("\n");
+
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="${document.baseURI}">
+  <style>${safeCss}</style>
+</head>
+<body>
+${htmlCode.value}
+${previewScript}
+</body>
+</html>`;
+    }
+
+    function revokePreviewUrl() {
+      if (!previewUrl) {
+        return;
+      }
+
+      URL.revokeObjectURL(previewUrl);
+      previewUrl = "";
+    }
+
+    function updateStatus(message) {
+      previewStatus.textContent = message;
+      lastUpdated.textContent = `Cap nhat lan cuoi: ${new Date().toLocaleTimeString("vi-VN")}`;
+    }
+
+    function renderPreview(message = "Preview da cap nhat") {
+      const previewBlob = new Blob([buildPreviewDocument()], { type: "text/html" });
+      revokePreviewUrl();
+      previewUrl = URL.createObjectURL(previewBlob);
+      previewFrame.src = previewUrl;
+      updateStatus(message);
+    }
+
+    function scheduleRender() {
+      if (!autoRun.checked) {
+        window.clearTimeout(renderTimer);
+        previewStatus.textContent = "Da tat tu dong chay";
+        return;
+      }
+
+      previewStatus.textContent = "Dang cap nhat...";
+      window.clearTimeout(renderTimer);
+      renderTimer = window.setTimeout(() => renderPreview(), 240);
+    }
+
+    function clearEditors() {
+      window.clearTimeout(renderTimer);
+      htmlCode.value = "";
+      cssCode.value = "";
+      jsCode.value = "";
+      try {
+        localStorage.removeItem(storageKey);
+      } catch {
+        // Ignore storage failures so the editor still works in restricted browsers.
+      }
+      renderPreview("Preview da duoc xoa");
+    }
+
+    [htmlCode, cssCode, jsCode].forEach((textarea) => {
+      textarea.addEventListener("input", () => {
+        writeSavedState();
+        scheduleRender();
+      });
+      textarea.addEventListener("keydown", (event) => {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          textarea.setRangeText("  ", start, end, "end");
+          writeSavedState();
+          scheduleRender();
+        }
+
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault();
+          renderPreview("Preview da chay bang phim tat");
+        }
+      });
+    });
+
+    runBtn.addEventListener("click", () => {
+      renderPreview("Preview da chay thu cong");
+    });
+
+    clearBtn.addEventListener("click", clearEditors);
+
+    autoRun.addEventListener("change", () => {
+      if (autoRun.checked) {
+        renderPreview("Da bat tu dong chay");
+      } else {
+        window.clearTimeout(renderTimer);
+        previewStatus.textContent = "Da tat tu dong chay";
+      }
+    });
+
+    hydrateEditors();
+    renderPreview();
+    window.addEventListener("beforeunload", revokePreviewUrl);
+  </script>
+</body>
+</html>
