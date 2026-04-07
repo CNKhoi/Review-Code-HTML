@@ -15,9 +15,8 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
 (() => {
   const redirectUrl = ${JSON.stringify(blockedUrl)};
   const devtoolsThreshold = 160;
-  const pollInterval = 700;
+  const initialCheckDelays = [0, 150, 500, 1200];
   let redirecting = false;
-  let devtoolsPoll = 0;
 
   function lockCurrentPage() {
     try {
@@ -41,7 +40,7 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
     }, 30);
   }
 
-  function openBlockedTarget() {
+  function openBlockedTarget(lockPage = false) {
     if (redirecting) {
       return;
     }
@@ -60,7 +59,9 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
     }
 
     if (popup) {
-      lockCurrentPage();
+      if (lockPage) {
+        lockCurrentPage();
+      }
       return;
     }
 
@@ -91,14 +92,6 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
       return true;
     }
 
-    if (hasPrimaryModifier && event.shiftKey && ["i", "j", "c", "k"].includes(key)) {
-      return true;
-    }
-
-    if (event.metaKey && event.altKey && ["i", "j", "c", "u"].includes(key)) {
-      return true;
-    }
-
     return false;
   }
 
@@ -114,39 +107,28 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
     }
 
     consumeEvent(event);
-    openBlockedTarget();
+    openBlockedTarget(false);
   }
 
   function enforceProtection() {
     if (detectDevtools()) {
-      openBlockedTarget();
+      openBlockedTarget(true);
     }
   }
 
-  ["keydown", "keyup", "keypress"].forEach((eventName) => {
-    window.addEventListener(eventName, handleBlockedShortcut, true);
-  });
+  window.addEventListener("keydown", handleBlockedShortcut, true);
 
-  ["contextmenu", "copy", "cut", "dragstart"].forEach((eventName) => {
-    window.addEventListener(eventName, (event) => {
-      consumeEvent(event);
-    }, true);
-  });
+  function runInitialChecks() {
+    initialCheckDelays.forEach((delay) => {
+      window.setTimeout(enforceProtection, delay);
+    });
+  }
 
-  window.addEventListener("resize", enforceProtection, true);
-  window.addEventListener("focus", enforceProtection, true);
-  window.addEventListener("pageshow", enforceProtection, true);
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-      enforceProtection();
-    }
-  }, true);
-
-  enforceProtection();
-  devtoolsPoll = window.setInterval(enforceProtection, pollInterval);
-  window.addEventListener("beforeunload", () => {
-    window.clearInterval(devtoolsPoll);
-  }, { once: true });
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runInitialChecks, { once: true });
+  } else {
+    runInitialChecks();
+  }
 })();
 <\/script>`;
       const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
