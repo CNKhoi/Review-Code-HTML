@@ -14,8 +14,9 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
 <script>
 (() => {
   const redirectUrl = ${JSON.stringify(blockedUrl)};
-  const devtoolsThreshold = 160;
-  const initialCheckDelays = [0, 150, 500, 1200];
+  const devtoolsWidthThreshold = 240;
+  const devtoolsHeightThreshold = 280;
+  const initialCheckDelays = [200, 800];
   let redirecting = false;
 
   function lockCurrentPage() {
@@ -98,7 +99,8 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
   function detectDevtools() {
     const widthGap = Math.abs(window.outerWidth - window.innerWidth);
     const heightGap = Math.abs(window.outerHeight - window.innerHeight);
-    return widthGap > devtoolsThreshold || heightGap > devtoolsThreshold;
+
+    return widthGap > devtoolsWidthThreshold || heightGap > devtoolsHeightThreshold;
   }
 
   function handleBlockedShortcut(event) {
